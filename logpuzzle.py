@@ -32,9 +32,10 @@ def read_urls(filename):
     http = ''.join(http_pattern.findall(filename))
     with open(filename) as f:
         contents = f.read()
-    url_list = sorted(set(url_pattern.findall(contents)))
+    url_list = list(set(url_pattern.findall(contents)))
+    url_list.sort(key=lambda x: x[-8:-4])
     for i, url in enumerate(url_list):
-        url_list[i] = http + url
+        url_list[i] = f"http://{http}{url}"
     return url_list
 
 
@@ -46,8 +47,17 @@ def download_images(img_urls, dest_dir):
     to show each local image file.
     Creates the directory if necessary.
     """
-    # +++your code here+++
-    pass
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+    for i, img in enumerate(img_urls):
+        print(f"Retrieving image {i+1} of {len(img_urls)}...")
+        urllib.request.urlretrieve(img, f'{dest_dir}/img{i}.jpg')
+    with open(f'{dest_dir}/index.html', 'w') as f:
+        f.writelines('<html>\n<body>\n')
+        for i in range(len(img_urls)):
+            f.write(f'<img src="img{i}.jpg">')
+        f.writelines('</body>\n</html>')
+    print('Process now complete, enjoy!')
 
 
 def create_parser():
